@@ -1,6 +1,8 @@
 import type { CallLanguage } from "@/lib/contracts/call-language";
 
 const english: Record<string, string> = {
+  "일시정지": "Pause", "계속하기": "Resume", "일시정지 중": "Paused",
+  "마이크와 안내 음성을 멈췄어요": "Microphone and voice guidance are paused",
   "사진 없이 바로 대화해요": "No photo needed",
   "이거 어떻게 버리지?": "How do I dispose of this?",
   "사진으로 시작하기": "Or start with a photo",

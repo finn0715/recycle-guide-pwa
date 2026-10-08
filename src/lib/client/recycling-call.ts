@@ -4,7 +4,7 @@ import { captureCallImage, readCallImage } from "./call-images";
 export type CallState = {
   status: "idle" | "connecting" | "connected" | "ended" | "error";
   activity: "listening" | "hearing" | "thinking" | "speaking";
-  muted: boolean; camera: "off" | "starting" | "on"; photoSending: boolean;
+  muted: boolean; paused: boolean; camera: "off" | "starting" | "on"; photoSending: boolean;
   caption: string; heard: string; error: string | null; mediaError: string | null; audioBlocked: boolean;
 };
 export type CallOptions = {
@@ -16,7 +16,7 @@ export type CallOptions = {
   readImage?: (file: File) => Promise<string>;
   capture?: (video: HTMLVideoElement) => string | null;
 };
-const initial = (): CallState => ({ status: "idle", activity: "listening", muted: false, camera: "off", photoSending: false, caption: "", heard: "", error: null, mediaError: null, audioBlocked: false });
+const initial = (): CallState => ({ status: "idle", activity: "listening", muted: false, paused: false, camera: "off", photoSending: false, caption: "", heard: "", error: null, mediaError: null, audioBlocked: false });
 async function connect(sdp: string, signal: AbortSignal, language: CallLanguage) {
   const response = await fetch("/api/call", { method: "POST", headers: { "Content-Type": "application/sdp", "X-Recycling-Language": language }, body: sdp, signal, cache: "no-store" });
   if (!response.ok) throw new Error("통화에 연결하지 못했어요. 잠시 뒤 다시 시작해 주세요.");
@@ -41,6 +41,11 @@ export function createRecyclingCall(options: CallOptions) {
   let durationTimer: ReturnType<typeof setTimeout> | undefined;
   let disconnectTimer: ReturnType<typeof setTimeout> | undefined;
   let responseActive = false, pendingPhotoReply = false;
+  let turnDetection: unknown = null, acceptResponse = true;
+  let activeResponseId: string | null = null;
+  const cancelledResponses = new Set<string>();
+  const cancellationEvents = new Set<string>();
+  let controlSequence = 0;
   let imageIds: string[] = [], imageSequence = 0;
   const publish = (patch: Partial<CallState>) => { state = { ...state, ...patch }; listeners.forEach(listener => listener()); };
   const live = (version: number) => !disposed && generation === version;
@@ -56,7 +61,10 @@ export function createRecyclingCall(options: CallOptions) {
     cameraOff(); stopTracks(microphone); microphone = null;
     channel?.close(); channel = null; peer?.close(); peer = null;
     options.audio.pause(); options.audio.srcObject = null;
+    options.audio.muted = false;
     imageIds = []; responseActive = false; pendingPhotoReply = false;
+    turnDetection = null; acceptResponse = true; activeResponseId = null;
+    cancelledResponses.clear(); cancellationEvents.clear();
   }
   function end() { release(); publish({ ...initial(), status: "ended" }); }
   function fail(message: string) { release(); publish({ ...initial(), status: "error", error: message }); }
@@ -66,12 +74,13 @@ export function createRecyclingCall(options: CallOptions) {
     catch { fail("통화 연결이 끊겼어요. 다시 시작해 주세요."); return false; }
   }
   function requestReply() {
+    if (state.paused) return;
     if (responseActive) { pendingPhotoReply = true; return; }
     responseActive = true;
     send({ type: "response.create" });
   }
   function sendImage(image: string, uploaded = false) {
-    if (state.status !== "connected" || !channel || channel.bufferedAmount > 120_000) return false;
+    if (state.status !== "connected" || state.paused || !channel || channel.bufferedAmount > 120_000) return false;
     const id = `frame_${generation}_${++imageSequence}`;
     if (!send({ type: "conversation.item.create", item: { id, type: "message", role: "user", content: [
       { type: "input_text", text: language === "en" ? (uploaded ? "Here is the item. Please give brief disposal guidance in English." : "Current camera image. Only answer when I ask a question, in English.") : (uploaded ? "지금 물건의 사진이에요. 짧게 안내해 주세요." : "현재 카메라 화면이에요. 질문이 있을 때만 답해 주세요.") },
@@ -91,42 +100,79 @@ export function createRecyclingCall(options: CallOptions) {
     } catch { cameraOff(); publish({ mediaError: "카메라 화면을 보내지 못했어요. 음성 대화는 계속할 수 있어요." }); }
   }
   async function play() {
+    if (state.paused) return;
     const version = generation;
-    try { await options.audio.play(); if (live(version)) publish({ audioBlocked: false }); }
-    catch { if (live(version)) publish({ audioBlocked: true }); }
+    try { await options.audio.play(); if (live(version) && !state.paused) publish({ audioBlocked: false }); }
+    catch { if (live(version) && !state.paused) publish({ audioBlocked: true }); }
+  }
+  function cancelResponse() {
+    if (activeResponseId) cancelledResponses.add(activeResponseId);
+    if (responseActive) {
+      const eventId = `pause_${generation}_${++controlSequence}`;
+      cancellationEvents.add(eventId);
+      send({ type: "response.cancel", event_id: eventId });
+      responseActive = false;
+    }
+    send({ type: "output_audio_buffer.clear" });
   }
   function receive(raw: string, version: number) {
     if (!live(version)) return;
     let event: Record<string, unknown>;
     try { event = JSON.parse(raw); } catch { return; }
+    if (typeof event.response_id === "string" && cancelledResponses.has(event.response_id)) return;
+    if (state.paused && ["input_audio_buffer.speech_started", "input_audio_buffer.speech_stopped", "conversation.item.input_audio_transcription.completed"].includes(String(event.type))) return;
     switch (event.type) {
-      case "session.created":
+      case "session.created": {
+        const session = event.session as { audio?: { input?: { turn_detection?: unknown } } } | undefined;
+        turnDetection = session?.audio?.input?.turn_detection ?? null;
         clearTimeout(connectTimer); publish({ status: "connected" });
         durationTimer = setTimeout(end, 10 * 60_000);
         responseActive = true;
         send({ type: "response.create", response: { instructions: callGreeting(language) } }); break;
+      }
+      case "session.updated": {
+        const session = event.session as { audio?: { input?: { turn_detection?: unknown } } } | undefined;
+        const detection = session?.audio?.input?.turn_detection;
+        if (detection != null) turnDetection = detection;
+        break;
+      }
       case "input_audio_buffer.speech_started":
         publish({ activity: "hearing", caption: "", heard: "" }); frame(); break;
       case "input_audio_buffer.speech_stopped": publish({ activity: "thinking" }); frame(); break;
       case "conversation.item.input_audio_transcription.completed":
         if (typeof event.transcript === "string") publish({ heard: event.transcript.slice(0, 300) }); break;
-      case "response.created": responseActive = true; publish({ activity: "thinking", caption: "" }); break;
+      case "response.created": {
+        const response = event.response as { id?: string } | undefined;
+        activeResponseId = response?.id ?? null;
+        responseActive = true;
+        if (state.paused) { cancelResponse(); break; }
+        acceptResponse = true; publish({ activity: "thinking", caption: "" }); break;
+      }
       case "response.output_audio_transcript.delta":
-        if (typeof event.delta === "string") publish({ caption: (state.caption + event.delta).slice(-1200) }); break;
+        if (!state.paused && acceptResponse && typeof event.delta === "string") publish({ caption: (state.caption + event.delta).slice(-1200) }); break;
       case "response.output_audio_transcript.done":
-        if (typeof event.transcript === "string") publish({ caption: event.transcript.slice(0, 1200) }); break;
-      case "output_audio_buffer.started": publish({ activity: "speaking" }); break;
+        if (!state.paused && acceptResponse && typeof event.transcript === "string") publish({ caption: event.transcript.slice(0, 1200) }); break;
+      case "output_audio_buffer.started":
+        if (state.paused) { send({ type: "output_audio_buffer.clear" }); break; }
+        if (acceptResponse) publish({ activity: "speaking" }); break;
       case "output_audio_buffer.stopped":
       case "output_audio_buffer.cleared": publish({ activity: "listening" }); break;
       case "response.done": {
+        const response = event.response as { id?: string; status?: string } | undefined;
+        if (response?.id && activeResponseId && response.id !== activeResponseId) break;
         responseActive = false;
-        const response = event.response as { status?: string } | undefined;
+        if (state.paused || (response?.id && cancelledResponses.has(response.id))) break;
         if (response?.status === "failed") { fail("답변 연결에 문제가 생겼어요. 다시 시작해 주세요."); break; }
         if (response?.status === "incomplete") publish({ mediaError: "답변이 중간에 끊겼어요. 다시 설명해 달라고 말씀해 주세요." });
         if (pendingPhotoReply) { pendingPhotoReply = false; requestReply(); }
         break;
       }
-      case "error": fail("대화 연결에 문제가 생겼어요. 다시 시작해 주세요."); break;
+      case "error": {
+        const error = event.error as { code?: string; event_id?: string } | undefined;
+        // The response may finish on the server just before our cancellation arrives.
+        if (error?.code === "response_cancel_not_active" && error.event_id && cancellationEvents.delete(error.event_id)) break;
+        fail("대화 연결에 문제가 생겼어요. 다시 시작해 주세요."); break;
+      }
     }
   }
   return {
@@ -180,14 +226,34 @@ export function createRecyclingCall(options: CallOptions) {
       }
     },
     end,
-    mute() {
+    togglePause() {
       if (state.status !== "connected") return;
+      const paused = !state.paused;
+      if (paused) {
+        acceptResponse = false; pendingPhotoReply = false; photoGeneration++;
+        publish({ paused: true, activity: "listening", photoSending: false, audioBlocked: false });
+        microphone?.getAudioTracks().forEach(track => { track.enabled = false; });
+        options.audio.muted = true; options.audio.pause();
+        cameraOff();
+        if (!send({ type: "session.update", session: { type: "realtime", audio: { input: { turn_detection: null } } } })) return;
+        cancelResponse();
+        send({ type: "input_audio_buffer.clear" });
+      } else {
+        if (!send({ type: "input_audio_buffer.clear" })) return;
+        if (!send({ type: "session.update", session: { type: "realtime", audio: { input: { turn_detection: turnDetection } } } })) return;
+        publish({ paused: false, activity: "listening" });
+        microphone?.getAudioTracks().forEach(track => { track.enabled = !state.muted; });
+        options.audio.muted = false; void play();
+      }
+    },
+    mute() {
+      if (state.status !== "connected" || state.paused) return;
       const muted = !state.muted;
       microphone?.getAudioTracks().forEach(track => { track.enabled = !muted; });
       publish({ muted });
     },
     async toggleCamera() {
-      if (state.status !== "connected" || state.photoSending) return;
+      if (state.status !== "connected" || state.paused || state.photoSending) return;
       if (state.camera !== "off") { cameraOff(); return; }
       const version = generation, cameraVersion = ++cameraGeneration;
       publish({ camera: "starting", mediaError: null });
@@ -205,7 +271,7 @@ export function createRecyclingCall(options: CallOptions) {
       }
     },
     async sendPhoto(file: File) {
-      if (state.status !== "connected" || state.photoSending) return;
+      if (state.status !== "connected" || state.paused || state.photoSending) return;
       cameraOff(); const version = generation, photoVersion = ++photoGeneration;
       publish({ photoSending: true, mediaError: null });
       try {

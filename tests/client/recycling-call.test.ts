@@ -11,7 +11,7 @@ function setup(language: "ko" | "en" = "ko") {
   const channel = { readyState: "open", bufferedAmount: 0, send: vi.fn(), close: vi.fn(), onmessage: null as null | ((event: { data: string }) => void), onclose: null as null | (() => void), onerror: null };
   const peer = { localDescription: { sdp: "v=0\r\nm=audio\r\nm=application\r\n" }, connectionState: "connected", addTrack: vi.fn(), createDataChannel: vi.fn(() => channel), createOffer: vi.fn(async () => ({ type: "offer", sdp: "v=0" })), setLocalDescription: vi.fn(async () => {}), setRemoteDescription: vi.fn(async () => {}), close: vi.fn(), ontrack: null, onconnectionstatechange: null };
   const media = { getUserMedia: vi.fn(async (constraints: MediaStreamConstraints) => constraints.video ? camera.stream : microphone.stream) };
-  const audio = { srcObject: null, pause: vi.fn(), play: vi.fn(async () => {}) };
+  const audio = { srcObject: null, muted: false, pause: vi.fn(), play: vi.fn(async () => {}) };
   const video = { srcObject: null, play: vi.fn(async () => {}), videoWidth: 640, videoHeight: 480 };
   const close = vi.fn(); const connect = vi.fn(async () => ({ sdp: "v=0 answer", close }));
   const capture = vi.fn(() => "data:image/jpeg;base64,eA==");
@@ -19,7 +19,7 @@ function setup(language: "ko" | "en" = "ko") {
   const call = createRecyclingCall({ language, media, peer: () => peer as unknown as RTCPeerConnection, audio: audio as unknown as HTMLAudioElement, video: video as unknown as HTMLVideoElement, connect, capture, readImage });
   calls.push(call);
   const emit = (event: object) => channel.onmessage?.({ data: JSON.stringify(event) });
-  const connected = async () => { await call.start(); emit({ type: "session.created" }); };
+  const connected = async () => { await call.start(); emit({ type: "session.created", session: { audio: { input: { turn_detection: { type: "semantic_vad", eagerness: "medium", create_response: true, interrupt_response: true } } } } }); };
   const sent = () => channel.send.mock.calls.map(([raw]) => JSON.parse(raw));
   return { call, media, microphone, camera, audio, video, channel, peer, connect, close, emit, connected, capture, readImage, sent };
 }
@@ -27,6 +27,63 @@ const calls: RecyclingCall[] = [];
 afterEach(() => { calls.splice(0).forEach(call => call.dispose()); vi.useRealTimers(); });
 
 describe("continuous recycling call", () => {
+  it("pauses speech, microphone and camera while preserving captions and the connected conversation", async () => {
+    vi.useFakeTimers(); const h = setup(); await h.connected();
+    h.emit({ type: "response.created", response: { id: "reply_1" } });
+    h.emit({ type: "response.output_audio_transcript.delta", response_id: "reply_1", delta: "기존 안내" });
+    h.emit({ type: "output_audio_buffer.started", response_id: "reply_1" });
+    await h.call.toggleCamera();
+    h.call.togglePause();
+    expect(h.call.getSnapshot()).toMatchObject({ status: "connected", paused: true, caption: "기존 안내", camera: "off" });
+    expect(h.microphone.track.enabled).toBe(false); expect(h.audio.muted).toBe(true);
+    expect(h.camera.track.stop).toHaveBeenCalledOnce(); expect(h.close).not.toHaveBeenCalled();
+    expect(h.sent()).toContainEqual({ type: "session.update", session: { type: "realtime", audio: { input: { turn_detection: null } } } });
+    expect(h.sent()).toContainEqual(expect.objectContaining({ type: "response.cancel" }));
+    expect(h.sent()).toContainEqual({ type: "output_audio_buffer.clear" });
+    const count = h.sent().length;
+    await h.call.play(); await h.call.toggleCamera(); await h.call.sendPhoto(new File(["x"], "paused.jpg"));
+    vi.advanceTimersByTime(9_000); expect(h.sent()).toHaveLength(count);
+    h.emit({ type: "response.output_audio_transcript.done", response_id: "reply_1", transcript: "늦은 안내" });
+    h.emit({ type: "input_audio_buffer.speech_started" });
+    expect(h.call.getSnapshot().caption).toBe("기존 안내");
+    h.call.togglePause();
+    expect(h.call.getSnapshot()).toMatchObject({ paused: false, caption: "기존 안내", activity: "listening" });
+    expect(h.microphone.track.enabled).toBe(true); expect(h.audio.muted).toBe(false);
+    expect(h.sent().at(-1).session.audio.input.turn_detection.type).toBe("semantic_vad");
+    h.emit({ type: "response.output_audio_transcript.done", response_id: "reply_1", transcript: "재개 후 늦은 안내" });
+    expect(h.call.getSnapshot().caption).toBe("기존 안내");
+    h.emit({ type: "response.created", response: { id: "reply_2" } });
+    h.emit({ type: "response.output_audio_transcript.delta", response_id: "reply_2", delta: "새 안내" });
+    expect(h.call.getSnapshot().caption).toBe("새 안내");
+    h.call.togglePause(); h.call.end();
+    expect(h.call.getSnapshot()).toMatchObject({ status: "ended", paused: false });
+    expect(h.microphone.track.stop).toHaveBeenCalledOnce(); expect(h.close).toHaveBeenCalledOnce();
+  });
+  it("discards a pending photo and camera permission at pause, preserves mute, and keeps the 10-minute limit", async () => {
+    vi.useFakeTimers(); const h = setup(); await h.connected(); h.call.mute();
+    const permission = deferred<MediaStream>(); h.media.getUserMedia.mockReturnValueOnce(permission.promise);
+    const opening = h.call.toggleCamera();
+    const photo = deferred<string>(); h.readImage.mockReturnValueOnce(photo.promise);
+    const sending = h.call.sendPhoto(new File(["x"], "late.jpg"));
+    h.call.togglePause(); h.call.togglePause();
+    const count = h.sent().length;
+    permission.resolve(h.camera.stream); photo.resolve("data:image/jpeg;base64,eA==");
+    await opening; await sending;
+    expect(h.sent()).toHaveLength(count); expect(h.camera.track.stop).toHaveBeenCalledOnce();
+    expect(h.call.getSnapshot()).toMatchObject({ muted: true, photoSending: false, camera: "off" });
+    expect(h.microphone.track.enabled).toBe(false);
+    h.call.togglePause(); vi.advanceTimersByTime(600_001);
+    expect(h.call.getSnapshot().status).toBe("ended"); expect(h.close).toHaveBeenCalledOnce();
+  });
+  it("cancels responses arriving while paused and tolerates only its own finished-response cancellation race", async () => {
+    const h = setup(); await h.connected(); h.call.togglePause();
+    h.emit({ type: "response.created", response: { id: "late_reply" } });
+    const cancel = h.sent().filter(event => event.type === "response.cancel").at(-1);
+    h.emit({ type: "error", error: { code: "response_cancel_not_active", event_id: cancel.event_id } });
+    expect(h.call.getSnapshot()).toMatchObject({ status: "connected", paused: true });
+    h.emit({ type: "error", error: { code: "unrelated_failure" } });
+    expect(h.call.getSnapshot().status).toBe("error");
+  });
   it("connects with audio only, starts one greeting, and releases every resource on hangup", async () => {
     const h = setup(); await h.connected();
     expect(h.call.getSnapshot().status).toBe("connected");

@@ -27,12 +27,28 @@ it("offers photo and voice entry and closes a late microphone on pagehide after 
 });
 
 function fakeCall() {
-  let state: import("@/lib/client/recycling-call").CallState = { status: "idle", activity: "listening", muted: false, camera: "off", photoSending: false, caption: "", heard: "", error: null, mediaError: null, audioBlocked: false };
+  let state: import("@/lib/client/recycling-call").CallState = { status: "idle", activity: "listening", muted: false, paused: false, camera: "off", photoSending: false, caption: "", heard: "", error: null, mediaError: null, audioBlocked: false };
   const listeners = new Set<() => void>();
   const update = (patch: Partial<typeof state>) => { state = { ...state, ...patch }; listeners.forEach(fn => fn()); };
-  const call = { subscribe: (fn: () => void) => { listeners.add(fn); return () => listeners.delete(fn); }, getSnapshot: () => state, start: vi.fn(async () => { update({ status: "connecting" }); }), sendPhoto: vi.fn(async () => {}), end: vi.fn(() => update({ status: "ended" })), mute: vi.fn(), toggleCamera: vi.fn(async () => {}), play: vi.fn(async () => {}), dispose: vi.fn() };
+  const call = { subscribe: (fn: () => void) => { listeners.add(fn); return () => listeners.delete(fn); }, getSnapshot: () => state, start: vi.fn(async () => { update({ status: "connecting" }); }), sendPhoto: vi.fn(async () => {}), end: vi.fn(() => update({ status: "ended" })), togglePause: vi.fn(() => update({ paused: !state.paused })), mute: vi.fn(), toggleCamera: vi.fn(async () => {}), play: vi.fn(async () => {}), dispose: vi.fn() };
   return { call, update };
 }
+it.each(["ko", "en"] as const)("offers pause, resume and hangup with preserved guidance in %s", language => {
+  const { call, update } = fakeCall();
+  render(<CallControls call={call} language={language} />);
+  act(() => update({ status: "connected", caption: "Existing guidance" }));
+  fireEvent.click(screen.getByRole("button", { name: language === "ko" ? "일시정지" : "Pause" }));
+  expect(call.togglePause).toHaveBeenCalledOnce();
+  expect(screen.getByRole("button", { name: language === "ko" ? "계속하기" : "Resume" })).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByText(language === "ko" ? "일시정지 중" : "Paused")).toBeVisible();
+  expect(screen.getByText("Existing guidance")).toBeVisible();
+  expect(screen.getByRole("button", { name: language === "ko" ? "사진 보내기" : "Send photo" })).toBeDisabled();
+  fireEvent.click(screen.getByRole("button", { name: language === "ko" ? "계속하기" : "Resume" }));
+  expect(screen.getByRole("button", { name: language === "ko" ? "일시정지" : "Pause" })).toHaveAttribute("aria-pressed", "false");
+  fireEvent.click(screen.getByRole("button", { name: language === "ko" ? "일시정지" : "Pause" }));
+  fireEvent.click(screen.getByRole("button", { name: language === "ko" ? "안내 끝내기" : "End guidance" }));
+  expect(call.end).toHaveBeenCalledOnce();
+});
 it("sends a selected photo exactly once after connecting, without requiring another send action", () => {
   const { call, update } = fakeCall();
   render(<StrictMode><CallControls call={call} /></StrictMode>);

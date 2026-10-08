@@ -9,11 +9,11 @@
 - `npm run preview:sites`: localhost:3026의 Workers 로컬 실행. 키가 필요한 검증은 `--env-file ../WAICY_2026_분리수거AI/.env`를 추가해 이미 승인된 로컬 키를 읽는다. 값을 출력하거나 파일을 복사하지 않는다.
 - `npm run dev` / `npm run build:next`: 보존된 Next.js 로컬 구현이다. Sites 런타임과 같다고 취급하지 않는다.
 - 기존 키를 Sites의 `OPENAI_API_KEY` secret으로 등록하도록 사용자가 명시 승인했다. 값은 소스·빌드·브라우저에 넣지 않는다.
-- 기본 접근은 소유자 전용이다. 공개 공유 전환은 별도 사용자 요청을 따른다. 정기 갱신은 필요하지 않다.
+- 2026-10-08 현재 Sites 접근 정책은 public이다. 이번 수정은 기존 공개 범위를 유지한다. 정기 갱신은 필요하지 않다.
 
 ## 제공하는 기능
 
-Sites에서는 기존 React 통화 화면, 한국어/영어, 음성·촬영·앨범 진입, 통화 중 카메라 정지 화면·사진·음소거·종료와 `/api/call`을 제공한다. 원래 프로젝트의 사용하지 않는 단계별 API·WAV/이미지 서버 경로는 소스에 보존했지만 Sites에 노출하지 않는다. 검수 세션 지침은 `src/lib/server/call-session.ts`를 공유한다.
+Sites에서는 기존 React 통화 화면, 한국어/영어, 음성·촬영·앨범 진입, 통화 중 카메라 정지 화면·사진·음소거·일시정지/계속하기·종료와 `/api/call`을 제공한다. 원래 프로젝트의 사용하지 않는 단계별 API·WAV/이미지 서버 경로는 소스에 보존했지만 Sites에 노출하지 않는다. 검수 세션 지침은 `src/lib/server/call-session.ts`를 공유한다.
 
 PWA는 manifest의 standalone 모드, 일반 192/512px·maskable 512px·Apple 180px 아이콘, 서비스 워커를 제공한다. 홈·API·사진·음성·자막은 캐시하지 않고 `/offline.html`만 저장한다. AI 안내에는 인터넷이 필요하다. iPhone Safari에서 공유 → 홈 화면에 추가, Android Chrome에서 설치 메뉴를 이용한다. 실물 기기 설치·권한·백그라운드 복귀는 아직 미검증이다.
 

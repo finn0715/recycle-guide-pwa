@@ -325,3 +325,11 @@ OpenAI 호출은 서버에서만 수행한다. Responses 요청은 `store: false
 수정 후 lint/typecheck/test/build 종료 0, 34파일·572검사. Aside 실제 데스크톱과 360×740 CSS iframe 한국어·영어 캡처를 열어 확인했다. 영어 clientWidth=scrollWidth=360. 가상 대기 마이크로 시작→연결 취소→같은 홈 제목 복귀·언어 잠금 해제를 확인했다. iframe 역할 선택기 실패 후 새 snapshot의 요소로 동작을 확인했고 임시 iframe은 제거했다. 실물 기기·실제 음성 검증은 이번에 재수행하지 않았다.
 
 README·설명서/발표 초안·운영/아키텍처/보안·개발 지침·상태·인수인계를 현재 음성 우선, 촬영/앨범 분리, 한국어/영어 지원에 맞췄다. 학생 미확정 정보와 과거 검증 기록은 보존했다. Git 원격은 등록되어 있지 않아 커밋·푸시·배포하지 않고 기존 변경과 함께 작업 트리에 보존했다.
+
+## 2026-10-08 Sites 통화 일시정지
+
+- lint/typecheck, 전체 자동 검사 35파일 582개, Sites Worker 빌드 모두 종료 코드 0. 회귀 범위: 정지/재개, 음소거 유지, 자막 보존, 늦은 응답·사진·카메라 권한 폐기, 정지 중 종료·10분 상한, 한국어/영어 버튼과 비활성 상태.
+- Aside REPL로 localhost:3026의 실제 Workers API와 OpenAI WebRTC 연결을 확인했다. 마이크는 무음 합성 스트림으로 대체했으며 실제 peer·서버 API·응답은 대체하지 않았다. 준비된 종이 상자 안내 재생 중 정지 → 음소거된 audio와 paused 상태, 마이크 track.enabled=false, 서버 output_audio_buffer.cleared·conversation.item.truncated·session.updated(turn_detection=null)을 확인했다.
+- 재개 → 같은 peer 1개에서 마이크 enabled=true·audio 재생·서버 발화 감지 복원과 후속 준비 질문 응답 completed를 확인했다. 제공자 error 이벤트 0건. 종료 → DELETE 204, 마이크 ended, peer closed를 확인하고 합성 AudioContext를 닫았다. 사람 청취·실물 마이크·실물 휴대폰은 미실시다.
+- Aside 스크린샷은 CDP 캡처 시간 초과로 실패했다. DOM 스냅샷에서 정지/재개 문구·버튼 상태·기존 자막 유지는 확인했지만 픽셀 외형 검증을 통과했다고 보고하지 않는다.
+- 중단 제어는 [OpenAI 공식 WebRTC 중단 절차](https://developers.openai.com/api/docs/guides/realtime-conversations#webrtc-and-sip)를 따르며 session.updated의 실제 발화 감지 설정을 보존해 복원한다. 배포 성공은 Sites의 해당 배포 상태를 따른다.

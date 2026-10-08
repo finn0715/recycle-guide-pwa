@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
-import { Camera, CameraOff, ImagePlus, Mic, MicOff, PhoneOff, Volume2, MapPin, Recycle, ArrowRight, Globe } from "lucide-react";
+import { Camera, CameraOff, ImagePlus, Mic, MicOff, PhoneOff, Pause, Play, Volume2, MapPin, Recycle, ArrowRight, Globe } from "lucide-react";
 import { createRecyclingCall, type CallState, type RecyclingCall } from "@/lib/client/recycling-call";
 import { type CallLanguage } from "@/lib/contracts/call-language";
 import { callText, callError } from "./call-copy";
@@ -55,9 +55,9 @@ export function CallControls({ call, language = "ko" }: { call: RecyclingCall; l
           </div>
         </section>
       </div> : <>
-        <div className={styles.callStatus} role="status"><span className={styles.statusDot} data-active={active} />{connecting ? t("연결하고 있어요") : state.muted ? t("마이크가 꺼져 있어요") : t(labels[state.activity])}</div>
-        {state.camera === "off" && <div className={styles.voiceOrb} data-speaking={state.activity === "speaking" || state.activity === "hearing"} aria-hidden="true"><span /><span /><span /><span /><span /></div>}
-        <p className={styles.liveHint}>{t("분리배출 안내 중")}</p>
+        <div className={styles.callStatus} role="status"><span className={styles.statusDot} data-active={active && !state.paused} />{connecting ? t("연결하고 있어요") : state.paused ? t("일시정지 중") : state.muted ? t("마이크가 꺼져 있어요") : t(labels[state.activity])}</div>
+        {state.camera === "off" && <div className={styles.voiceOrb} data-speaking={!state.paused && (state.activity === "speaking" || state.activity === "hearing")} aria-hidden="true"><span /><span /><span /><span /><span /></div>}
+        <p className={styles.liveHint}>{t(state.paused ? "마이크와 안내 음성을 멈췄어요" : "분리배출 안내 중")}</p>
         {state.heard && <p className={styles.heard}>{state.heard}</p>}
         <p className={styles.caption} aria-live="off">{state.caption || (connecting ? t("잠시만 기다려 주세요.") : t("무엇을 버리려고 하세요?"))}</p>
       </>}
@@ -66,15 +66,18 @@ export function CallControls({ call, language = "ko" }: { call: RecyclingCall; l
       {state.error && <p className={styles.error} role="alert">{callError(language, state.error)}</p>}
       {state.mediaError && <p className={styles.error} role="alert">{callError(language, state.mediaError)}</p>}
       {state.photoSending && <p className={styles.notice} role="status">{t("사진을 보내고 있어요")}</p>}
-      {state.audioBlocked && <button className={styles.play} onClick={() => void call.play()}><Volume2 size={20} aria-hidden="true" />{t("소리 듣기")}</button>}
+      {state.audioBlocked && !state.paused && <button className={styles.play} onClick={() => void call.play()}><Volume2 size={20} aria-hidden="true" />{t("소리 듣기")}</button>}
     </section>
     {(active || connecting) && <div className={styles.controls}>
       {active && <div className={styles.tools}>
-        <button type="button" onClick={() => call.mute()} aria-pressed={state.muted}>{state.muted ? <MicOff aria-hidden="true" /> : <Mic aria-hidden="true" />}<span>{state.muted ? t("마이크 켜기") : t("마이크 끄기")}</span></button>
-        <button type="button" onClick={() => void call.toggleCamera()} disabled={state.photoSending} aria-pressed={state.camera !== "off"}>{state.camera === "off" ? <Camera aria-hidden="true" /> : <CameraOff aria-hidden="true" />}<span>{state.camera === "off" ? t("카메라 켜기") : state.camera === "starting" ? t("카메라 취소") : t("카메라 끄기")}</span></button>
-        <button type="button" onClick={() => input.current?.click()} disabled={state.photoSending}><ImagePlus aria-hidden="true" /><span>{t("사진 보내기")}</span></button>
+        <button type="button" onClick={() => call.mute()} disabled={state.paused} aria-pressed={state.muted}>{state.muted ? <MicOff aria-hidden="true" /> : <Mic aria-hidden="true" />}<span>{state.muted ? t("마이크 켜기") : t("마이크 끄기")}</span></button>
+        <button type="button" onClick={() => void call.toggleCamera()} disabled={state.paused || state.photoSending} aria-pressed={state.camera !== "off"}>{state.camera === "off" ? <Camera aria-hidden="true" /> : <CameraOff aria-hidden="true" />}<span>{state.camera === "off" ? t("카메라 켜기") : state.camera === "starting" ? t("카메라 취소") : t("카메라 끄기")}</span></button>
+        <button type="button" onClick={() => input.current?.click()} disabled={state.paused || state.photoSending}><ImagePlus aria-hidden="true" /><span>{t("사진 보내기")}</span></button>
       </div>}
+      <div className={styles.sessionActions}>
+      {active && <button type="button" className={styles.pause} onClick={() => call.togglePause()} aria-pressed={state.paused}>{state.paused ? <Play size={21} aria-hidden="true" /> : <Pause size={21} aria-hidden="true" />}{t(state.paused ? "계속하기" : "일시정지")}</button>}
       <button type="button" className={styles.end} onClick={() => { pendingPhoto.current = null; call.end(); }}><PhoneOff size={21} aria-hidden="true" />{connecting ? t("연결 취소") : t("안내 끝내기")}</button>
+      </div>
     </div>}
     <footer className={styles.footer}>
       {!active && !connecting && <p className={styles.regionNote}><MapPin size={14} aria-hidden="true" />{t("현재는 서울 송파구 기준으로 안내해요")}</p>}
