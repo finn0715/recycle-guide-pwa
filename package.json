@@ -1,0 +1,43 @@
+{
+  "name": "recycle-guide",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0",
+    "dev:https": "node scripts/local-https.mjs",
+    "https:prepare": "node scripts/local-https.mjs --prepare",
+    "build": "node scripts/build-sites.mjs",
+    "start": "next start --hostname 0.0.0.0",
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "build:next": "next build",
+    "preview:sites": "wrangler dev --config wrangler.jsonc --port 3026"
+  },
+  "dependencies": {
+    "lucide-react": "latest",
+    "next": "16.3.8",
+    "openai": "latest",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "sharp": "latest",
+    "ws": "^8.22.0",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "latest",
+    "@testing-library/react": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@types/ws": "^8.18.2",
+    "esbuild": "^0.28.2",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.8",
+    "jsdom": "latest",
+    "typescript": "latest",
+    "vitest": "latest",
+    "wrangler": "^4.148.0"
+  },
+  "type": "module"
+}

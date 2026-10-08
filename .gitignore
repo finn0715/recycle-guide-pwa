@@ -1,0 +1,19 @@
+
+# Local credentials
+.env
+.env.*
+!.env.example
+.local-https/
+
+.dryforge/
+node_modules
+.next/
+coverage/
+*.tsbuildinfo
+.DS_Store
+
+next-env.d.ts
+
+dist/
+.sites-runtime/
+.wrangler/

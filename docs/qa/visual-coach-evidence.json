@@ -1,0 +1,453 @@
+{
+  "date": "2026-10-08",
+  "codeCommit": "93fc47207c8e443cdf35926df16e2d6935479979",
+  "scope": "준비 입력과 실제 OpenAI·데스크톱 브라우저·로컬 HTTPS 연결 확인. 현장 정확도 시험 아님.",
+  "environment": {
+    "os": "macOS",
+    "node": "22.22.3",
+    "npm": "10.9.8",
+    "openssl": "3.6.4",
+    "browser": "Aside 데스크톱 브라우저; 정확한 제품·버전 미기록",
+    "mobileMethod": "QA 전용 iframe CSS viewport; 물리 기기 아님"
+  },
+  "commands": [
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm test",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0
+    }
+  ],
+  "tests": {
+    "files": 31,
+    "passed": 542
+  },
+  "expandedRecognition": {
+    "codeCommit": "cca8b40b6431344ce94ffdb289006d8f056d147e",
+    "requests": 17,
+    "expectedRoutesMatched": true,
+    "twoCansHaveDistinctObjectIds": true,
+    "catalogVersion": "songpa-coach-2026-10-08-v3",
+    "samples": {
+      "publicPhotos": 11,
+      "syntheticBlank": 1,
+      "deliberatelyBlurredPublicPhoto": 1,
+      "manualDescriptions": 4
+    },
+    "cases": [
+      {
+        "case": "can",
+        "sampleKind": "공개 상품사진",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "metal-can"
+        ]
+      },
+      {
+        "case": "gas",
+        "sampleKind": "공개 상품사진",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "hazardous-handoff"
+        ]
+      },
+      {
+        "case": "two-cans",
+        "sampleKind": "공개 상품사진",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "metal-can",
+          "metal-can"
+        ]
+      },
+      {
+        "case": "carton",
+        "sampleKind": "공개 상품사진",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "drink-carton"
+        ]
+      },
+      {
+        "case": "cardboard",
+        "sampleKind": "공개 상품사진",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "cardboard-box"
+        ]
+      },
+      {
+        "case": "foam",
+        "sampleKind": "공개 상품사진",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "foam-box"
+        ]
+      },
+      {
+        "case": "film",
+        "sampleKind": "공개 상품사진",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "vinyl-packaging"
+        ]
+      },
+      {
+        "case": "plastic",
+        "sampleKind": "공개 상품사진",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "plastic-container"
+        ]
+      },
+      {
+        "case": "glass",
+        "sampleKind": "공개 상품사진",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "glass-bottle"
+        ]
+      },
+      {
+        "case": "toothbrush",
+        "sampleKind": "공개 상품사진",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "manual-toothbrush"
+        ]
+      },
+      {
+        "case": "ice",
+        "sampleKind": "공개 상품사진",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "ice-pack"
+        ]
+      },
+      {
+        "case": "unrecognizable",
+        "sampleKind": "합성 빈 이미지",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "needs_input",
+        "flows": [
+          "recovery-ambiguous"
+        ]
+      },
+      {
+        "case": "blurred",
+        "sampleKind": "공개 PET 사진을 의도적으로 흐리게 처리",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "needs_input",
+        "flows": [
+          "recovery-ambiguous"
+        ]
+      },
+      {
+        "case": "new-brand",
+        "sampleKind": "준비한 수동 설명",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "plastic-container"
+        ]
+      },
+      {
+        "case": "scrap",
+        "sampleKind": "준비한 수동 설명",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "metal-scrap"
+        ]
+      },
+      {
+        "case": "paper",
+        "sampleKind": "준비한 수동 설명",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "plain-paper"
+        ]
+      },
+      {
+        "case": "battery",
+        "sampleKind": "준비한 수동 설명",
+        "httpStatus": 200,
+        "noStore": true,
+        "requestIdMatched": true,
+        "outcome": "identified",
+        "flows": [
+          "battery-handoff"
+        ]
+      }
+    ]
+  },
+  "voice": {
+    "models": {
+      "helpAndImages": "gpt-6-luna",
+      "transcription": "gpt-transcribe",
+      "speech": "gpt-realtime-2.1-mini",
+      "voice": "marin"
+    },
+    "input": {
+      "sampleKind": "macOS Yuna로 준비한 한국어 WAV",
+      "durationSeconds": 2.871792,
+      "sampleRate": 24000,
+      "channels": 1,
+      "bits": 16
+    },
+    "help": {
+      "httpStatus": 200,
+      "transcriptMatchedPreparedInput": true,
+      "replyId": "pump-detach-cannot",
+      "choiceIds": [
+        "cannot"
+      ]
+    },
+    "speech": {
+      "httpStatus": 200,
+      "durationSeconds": 6.6,
+      "bytes": 316844,
+      "contextHeadersMatched": true,
+      "browserSpeakingToIdle": true
+    },
+    "limitations": [
+      "사람 청취와 실물 마이크 미실시",
+      "생성 음성 재전사에 단어 오류가 있어 발음 품질 확인 완료로 취급하지 않음; 원인 미확정",
+      "이전 model_not_found는 같은 모델·키에서 이후 성공; 원인 미확정"
+    ]
+  },
+  "browser": {
+    "narrowFlowSamples": "공개 캔·PET·펌프 사진과 준비한 상태 선택",
+    "cssWidths": [
+      360,
+      390,
+      430
+    ],
+    "horizontalOverflow": false,
+    "checks": [
+      "사진 표시와 현재 행동 연결",
+      "캔·PET의 단계와 결과",
+      "실제 펌프 도움 응답 후 음소거해도 답 보존",
+      "펌프 준비 후 다른 부품 보류에서 부분 결과·부품별 근거 유지",
+      "수동 일반 플라스틱의 뚜껑 준비 후 필름 보류: 뚜껑 결과 유지, 본체·필름 보류"
+    ],
+    "longQuestion": {
+      "characters": 1440,
+      "rejected": true,
+      "inputPreserved": true,
+      "currentStepPreserved": true
+    },
+    "doubleTextSize": {
+      "method": "DOM의 계산 글자 크기를 2배로 변경",
+      "clientWidth": 375,
+      "scrollWidth": 375,
+      "nativePhoneZoom": false
+    },
+    "landscape": {
+      "cssWidth": 844,
+      "cssHeight": 390,
+      "clientWidth": 829,
+      "scrollWidth": 829,
+      "questionAndSendVisibleAfterClick": true,
+      "virtualKeyboardTested": false
+    },
+    "reducedMotion": {
+      "cssRulePresent": true,
+      "actualOSPreferenceTested": false
+    }
+  },
+  "https": {
+    "codeCommit": "93fc47207c8e443cdf35926df16e2d6935479979",
+    "prepareCommand": "npm run https:prepare",
+    "prepareExitCode": 0,
+    "startCommand": "npm run dev:https -- --port 3443",
+    "addresses": [
+      "https://localhost:3443",
+      "https://192.168.45.202:3443"
+    ],
+    "verification": "curl --cacert로 TLS와 앱 HTML, openssl verify의 sslserver 목적·localhost 호스트·현재 LAN IP 검사",
+    "verificationExitCode": 0,
+    "serverStopped": true,
+    "osOrPhoneTrustInstalled": false,
+    "physicalPhoneTested": false
+  },
+  "production": {
+    "codeCommit": "93fc47207c8e443cdf35926df16e2d6935479979",
+    "command": "npm run start -- --port 3014",
+    "getStatus": 200,
+    "recognizeStatus": 200,
+    "sampleKind": "준비한 수동 음료캔 설명",
+    "externalModel": true,
+    "noStore": true,
+    "contextMatched": true,
+    "flow": "metal-can",
+    "serverStopped": true
+  },
+  "secretScan": {
+    "codeCommit": "93fc47207c8e443cdf35926df16e2d6935479979",
+    "trackedAndClientBuildFilesChecked": 137,
+    "trackedEnvOrPrivateKeyOrCertificateFiles": 0,
+    "configuredKeyExposures": 0,
+    "keyValuePrinted": false
+  },
+  "notVerified": [
+    "실물 휴대폰·태블릿의 CA 신뢰·HTTPS 접속·마이크·재생",
+    "사람의 한국어 음성 청취 품질",
+    "실물 촬영·HEIC·EXIF 회전·파일 선택 취소",
+    "가상 키보드·네이티브 글자 확대·OS 동작 줄이기",
+    "실물 폐기물 인식 정확도·준비 성공률·환경 효과",
+    "학생 직접 조사·개발·검증 실적"
+  ],
+  "entrySimplification": {
+    "codeCommit": "326ec76",
+    "request": "첫 화면과 안내 시작 전 반복 설명 제거; 처리 안내는 접힌 앱 정보로 이동",
+    "commands": [
+      {
+        "command": "npm run lint",
+        "exitCode": 0
+      },
+      {
+        "command": "npm run typecheck",
+        "exitCode": 0
+      },
+      {
+        "command": "npm test",
+        "exitCode": 0
+      },
+      {
+        "command": "npm run build",
+        "exitCode": 0
+      }
+    ],
+    "tests": {
+      "files": 31,
+      "passed": 542
+    },
+    "browser": {
+      "tool": "Aside repl",
+      "cssWidths": [
+        360,
+        390,
+        430
+      ],
+      "removedCopyAbsent": true,
+      "appInformationCollapsedInitially": true,
+      "appInformationOpensAndCloses": true,
+      "screenshotViewed": true,
+      "physicalPhone": false
+    },
+    "production": {
+      "getStatus": 200,
+      "bootstrapAssertionExitCode": 0,
+      "hydratedEntrySnapshotChecked": true,
+      "externalModelRerun": false
+    }
+  },
+  "finalVerification": {
+    "codeCommit": "109bbe2dfd5b17928f5680990986fd7af77a8f3b",
+    "commands": [
+      {
+        "command": "npm run lint",
+        "exitCode": 0
+      },
+      {
+        "command": "npm run typecheck",
+        "exitCode": 0
+      },
+      {
+        "command": "npm test",
+        "exitCode": 0
+      },
+      {
+        "command": "npm run build",
+        "exitCode": 0
+      }
+    ],
+    "tests": {
+      "files": 31,
+      "passed": 547
+    },
+    "pageExit": {
+      "redTests": 5,
+      "greenTests": 6,
+      "method": "실제 제어기와 대체 전송/음성 경계, jsdom PageTransitionEvent",
+      "checks": [
+        "사진·질문·전사·진행 초기화",
+        "녹음·재생 중단",
+        "진행 중 요청 취소와 늦은 응답 폐기",
+        "복귀 후 같은 제어기 재사용",
+        "StrictMode 및 언마운트 리스너 정리"
+      ],
+      "actualBrowserBFCacheVerified": false,
+      "browserAttempt": "Aside about:blank 이동의 준비 상태 시간 초과로 뒤로 복귀 확인 미완료"
+    },
+    "production": {
+      "getStatus": 200,
+      "bootstrapAssertionExitCode": 0,
+      "hydratedEntryAndManualCanConfirmed": true,
+      "serverStopped": true
+    },
+    "independentReview": {
+      "status": "approved",
+      "blockingIssues": 0,
+      "resolved": [
+        "페이지 이탈 정리 누락",
+        "음료팩 문서 표현과 건조 단계의 불일치"
+      ]
+    }
+  }
+}

@@ -1,0 +1,295 @@
+{
+  "recordedOn": "2026-10-01",
+  "scope": "실제 모델과 API의 연결 동작 검증. 준비한 상업용 상품사진과 가상 확인답변을 사용함.",
+  "limitations": [
+    "사진 속 제품의 실제 재질·청결·잔여물·성분·용도를 확인하지 않음",
+    "현장 인식 정확도·분리배출 성공률·환경 효과를 측정하지 않음",
+    "EPS는 식품 포장 판매사진의 형상을 비식품 배송이라는 가상 조건에 사용함",
+    "10종 전체를 최신 구현 커밋에서 다시 실행하지 않음. 후속 정정 변경은 자동 회귀 및 펌프 브라우저 경로에서 확인함",
+    "학생 직접 제작 실적을 증명하지 않음"
+  ],
+  "model": "gpt-6-luna",
+  "totalRequests": 39,
+  "completedCases": 10,
+  "cases": [
+    {
+      "itemId": "pump_bottle",
+      "implementationCommit": "37e74082a9b1b9ec0d20726e218502ea21f02fee",
+      "executedAt": "2026-10-01T10:51:12.583Z",
+      "sourceUrl": "https://store.shopping.yahoo.co.jp/coco-kk-store/4546490804682.html",
+      "imageUrl": "https://item-shopping.c.yimg.jp/i/n/coco-kk-store_4546490804682",
+      "hypotheticalConditions": "빈 플라스틱 용기, 복합 펌프, 분리되는 비닐 라벨이라는 가상 확인 조건",
+      "requests": 5,
+      "httpStatuses": [
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "responseStatuses": [
+        "needs_info",
+        "needs_info",
+        "needs_info",
+        "needs_info",
+        "ready"
+      ],
+      "finalStatus": "ready",
+      "ruleIds": [
+        "pump-plastic-empty",
+        "pump-composite-part",
+        "pump-film-label"
+      ]
+    },
+    {
+      "itemId": "clear_pet_bottle",
+      "implementationCommit": "37e74082a9b1b9ec0d20726e218502ea21f02fee",
+      "executedAt": "2026-10-01T10:51:12.583Z",
+      "sourceUrl": "https://www.freshpromotions.com.au/bottled-water/600ml-custom-label-water",
+      "imageUrl": "https://www.freshpromotions.com.au/media/catalog/product/cache/776f0223c734c0438524339f51db1044/6/0/600ml-clear-custom-label-water-bottle.jpg",
+      "hypotheticalConditions": "빈 투명 생수·음료병, 분리되는 비닐 라벨이라는 가상 확인 조건; 뚜껑은 사진 관찰",
+      "requests": 4,
+      "httpStatuses": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "responseStatuses": [
+        "needs_info",
+        "needs_info",
+        "needs_info",
+        "ready"
+      ],
+      "finalStatus": "ready",
+      "ruleIds": [
+        "pet-clear-empty",
+        "pet-reclose-cap",
+        "pet-film-label"
+      ]
+    },
+    {
+      "itemId": "drink_carton",
+      "implementationCommit": "37e74082a9b1b9ec0d20726e218502ea21f02fee",
+      "executedAt": "2026-10-01T10:51:12.583Z",
+      "sourceUrl": "https://m.lotteimall.com/goods/viewGoodsDetail.lotte?goods_no=2257470984",
+      "imageUrl": "https://image2.lotteimall.com/goods/84/09/47/2257470984_4.jpg/dims/resizemc/550x550/optimize",
+      "hypotheticalConditions": "빈 종이팩, 분리되는 깨끗한 단일 PP 빨대, 포장비닐 없음이라는 가상 확인 조건",
+      "requests": 4,
+      "httpStatuses": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "responseStatuses": [
+        "needs_info",
+        "needs_info",
+        "needs_info",
+        "ready"
+      ],
+      "finalStatus": "ready",
+      "ruleIds": [
+        "carton-empty-separated",
+        "carton-pp-straw"
+      ]
+    },
+    {
+      "itemId": "cardboard_box",
+      "implementationCommit": "daada3f6cdb076de6baa861d7f6e03566e6b56cc",
+      "executedAt": "2026-10-01T10:59:42.530061+00:00",
+      "sourceUrl": "https://www.zoro.com/zoro-select-12-in-x-9-in-x-6-in-shipping-box-kraft-corrugate-single-wall-32-ect-11r212/i/G4059544/",
+      "imageUrl": "https://www.zoro.com/static/cms/product/large/Z2tC8wmcpIx_.JPG",
+      "hypotheticalConditions": "코팅 없는 깨끗하고 마른 골판지, 분리되는 일반 포장 테이프라는 가상 확인 조건",
+      "requests": 4,
+      "httpStatuses": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "responseStatuses": [
+        "needs_info",
+        "needs_info",
+        "needs_info",
+        "ready"
+      ],
+      "finalStatus": "ready",
+      "ruleIds": [
+        "cardboard-clean",
+        "cardboard_box-tape"
+      ]
+    },
+    {
+      "itemId": "foam_box",
+      "implementationCommit": "daada3f6cdb076de6baa861d7f6e03566e6b56cc",
+      "executedAt": "2026-10-01T10:59:42.530061+00:00",
+      "sourceUrl": "https://suipa.package.co.jp/view/item/000000000603",
+      "imageUrl": "https://makeshop-multi-images.akamaized.net/suipatoko/itemimages/000000000603_iV9QRfR.jpg",
+      "hypotheticalConditions": "코팅 없는 흰색 비식품 생활용품 배송 EPS, 비었고 이물질·부속품 없음이라는 가상 확인 조건. 실제 사진 출처는 식품 포장 판매사진이며 비식품용임을 증명하지 않음",
+      "requests": 6,
+      "httpStatuses": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "responseStatuses": [
+        "needs_info",
+        "needs_info",
+        "needs_info",
+        "needs_info",
+        "needs_info",
+        "ready"
+      ],
+      "finalStatus": "ready",
+      "ruleIds": [
+        "foam-packaging-clean"
+      ]
+    },
+    {
+      "itemId": "snack_bag",
+      "implementationCommit": "daada3f6cdb076de6baa861d7f6e03566e6b56cc",
+      "executedAt": "2026-10-01T10:59:42.530061+00:00",
+      "sourceUrl": "https://www.target.com/p/-/A-53291015",
+      "imageUrl": "https://target.scene7.com/is/image/Target/GUEST_8a182dcd-5622-42b3-b420-75c5b6a41892?fmt=pjpeg&hei=488&wid=488",
+      "hypotheticalConditions": "빈 깨끗한 비닐 포장재라는 가상 확인 조건",
+      "requests": 3,
+      "httpStatuses": [
+        200,
+        200,
+        200
+      ],
+      "responseStatuses": [
+        "needs_info",
+        "needs_info",
+        "ready"
+      ],
+      "finalStatus": "ready",
+      "ruleIds": [
+        "snack-film-clean"
+      ]
+    },
+    {
+      "itemId": "takeaway_container",
+      "implementationCommit": "daada3f6cdb076de6baa861d7f6e03566e6b56cc",
+      "executedAt": "2026-10-01T10:59:42.530061+00:00",
+      "sourceUrl": "https://www.disposablesinc.com/disposable-products/plastic-containers",
+      "imageUrl": "https://www.disposablesinc.com/images/2023-import-products-from-china/plastic%20%20food%20container%20200%2001.jpg",
+      "hypotheticalConditions": "빈 깨끗한 PET·PE·PP·PS 용기와 분리되는 깨끗한 같은 검수 재질 뚜껑이라는 가상 확인 조건",
+      "requests": 4,
+      "httpStatuses": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "responseStatuses": [
+        "needs_info",
+        "needs_info",
+        "needs_info",
+        "ready"
+      ],
+      "finalStatus": "ready",
+      "ruleIds": [
+        "takeaway-clean",
+        "takeaway-plastic-lid"
+      ]
+    },
+    {
+      "itemId": "glass_jar",
+      "implementationCommit": "daada3f6cdb076de6baa861d7f6e03566e6b56cc",
+      "executedAt": "2026-10-01T10:59:42.530061+00:00",
+      "sourceUrl": "https://frufredriksen.no/nettbutikk/27-kjoekkenutstyr/2912-syltetoeyglass-roedrutet-lokk-210-ml/",
+      "imageUrl": "https://sw63348.sfstatic.io/upload_dir/shop/_thumbs/get_image-5-2.w610.h610.fill.jpg",
+      "hypotheticalConditions": "빈 일반 식품 유리병, 다른 재질이 붙지 않은 금속 뚜껑이라는 가상 확인 조건",
+      "requests": 4,
+      "httpStatuses": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "responseStatuses": [
+        "needs_info",
+        "needs_info",
+        "needs_info",
+        "ready"
+      ],
+      "finalStatus": "ready",
+      "ruleIds": [
+        "glass-jar-intact",
+        "glass-metal-lid"
+      ]
+    },
+    {
+      "itemId": "toothbrush",
+      "implementationCommit": "daada3f6cdb076de6baa861d7f6e03566e6b56cc",
+      "executedAt": "2026-10-01T10:59:42.530061+00:00",
+      "sourceUrl": "https://www.brushbuddies.com/products/standard-brush",
+      "imageUrl": "https://cdn.shopify.com/s/files/1/0023/0395/0909/products/02_92020ee8-e79d-427f-99d9-b152aeb56395_1024x1024%402x.png?v=1544594412",
+      "hypotheticalConditions": "수동 일반 플라스틱 칫솔이라는 가상 확인 조건",
+      "requests": 2,
+      "httpStatuses": [
+        200,
+        200
+      ],
+      "responseStatuses": [
+        "needs_info",
+        "ready"
+      ],
+      "finalStatus": "ready",
+      "ruleIds": [
+        "toothbrush-manual"
+      ]
+    },
+    {
+      "itemId": "ice_pack",
+      "implementationCommit": "daada3f6cdb076de6baa861d7f6e03566e6b56cc",
+      "executedAt": "2026-10-01T10:59:42.530061+00:00",
+      "sourceUrl": "https://korearocket.co.kr/product/%EC%96%BC%EC%9D%8C%ED%8C%A910%EA%B0%9C%EC%9E%85/11636/",
+      "imageUrl": "https://korearocket.co.kr/web/product/big/202301/4a95709bdfca4fd1e7feb9b6e79fac49.jpg",
+      "hypotheticalConditions": "물 100% 성분 및 비닐 포장재라는 가상 확인 조건",
+      "requests": 3,
+      "httpStatuses": [
+        200,
+        200,
+        200
+      ],
+      "responseStatuses": [
+        "needs_info",
+        "needs_info",
+        "ready"
+      ],
+      "finalStatus": "ready",
+      "ruleIds": [
+        "ice-water-film"
+      ]
+    }
+  ],
+  "additionalChecks": [
+    {
+      "scenario": "펌프 용기 재질 확인 불가",
+      "httpStatus": 200,
+      "status": "uncertain",
+      "question": null,
+      "guidance": null,
+      "assertionExitCode": 0
+    },
+    {
+      "scenario": "보이는 빨대와 부속품 없음 답변 충돌",
+      "before": {
+        "status": "ready",
+        "result": "실패: 최초에 충돌을 놓침"
+      },
+      "after": {
+        "httpStatus": 200,
+        "status": "needs_info",
+        "guidance": null
+      },
+      "limitation": "후속 1회 성공은 모든 충돌의 탐지율을 보장하지 않음"
+    }
+  ]
+}

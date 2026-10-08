@@ -1,0 +1,137 @@
+{
+  "date": "2026-10-01",
+  "scope": "Mobile preparation-first UX; multiple photos and instant manual choices",
+  "automated": {
+    "lintExitCode": 0,
+    "typecheckExitCode": 0,
+    "testExitCode": 0,
+    "testFiles": 11,
+    "testsPassed": 259,
+    "buildExitCode": 0
+  },
+  "apiDevelopment": {
+    "date": "2026-10-01T12:04:26.555Z",
+    "testInput": "Previously attributed commercial product photos; not field accuracy",
+    "results": [
+      {
+        "preparedPublicPhotoFamilies": [
+          "pump_bottle"
+        ],
+        "httpStatus": 200,
+        "items": [
+          "pump_bottle"
+        ],
+        "outcome": "identified",
+        "elapsedMs": 2580,
+        "assertionExitCode": 0
+      },
+      {
+        "preparedPublicPhotoFamilies": [
+          "pump_bottle",
+          "clear_pet_bottle",
+          "toothbrush"
+        ],
+        "httpStatus": 200,
+        "items": [
+          "pump_bottle",
+          "clear_pet_bottle",
+          "toothbrush"
+        ],
+        "outcome": "identified",
+        "elapsedMs": 2536,
+        "assertionExitCode": 0
+      }
+    ]
+  },
+  "apiProduction": {
+    "date": "2026-10-01T12:14:31.750Z",
+    "mode": "production",
+    "pageStatus": 200,
+    "postStatus": 200,
+    "outcome": "identified",
+    "items": [
+      "pump_bottle",
+      "clear_pet_bottle",
+      "toothbrush"
+    ],
+    "elapsedMs": 2853,
+    "requestIdMatched": true,
+    "noStore": true,
+    "testInput": "Previously attributed commercial product photos; not field accuracy",
+    "exitCode": 0
+  },
+  "secretScan": {
+    "date": "2026-10-01T12:16:37.753Z",
+    "keyConfigured": true,
+    "envIgnored": true,
+    "envTracked": false,
+    "filesScanned": 91,
+    "scope": "Tracked and untracked nonignored files plus client build output",
+    "keyMatches": 0,
+    "exitCode": 0
+  },
+  "browser": {
+    "tool": "Aside repl",
+    "environment": "Desktop browser with QA-only CSS viewport iframe; not physical devices",
+    "flows": [
+      "Three product photos automatically analyzed with three tabs",
+      "Immediate tab switch and manual item selection",
+      "Ice-pack composition selection",
+      "Official sources expanded"
+    ],
+    "viewports": [
+      {
+        "width": 390,
+        "height": 844,
+        "state": "start-before",
+        "pageHeight": 1668,
+        "clientWidth": 375,
+        "scrollWidth": 375
+      },
+      {
+        "width": 390,
+        "height": 844,
+        "state": "start-after",
+        "pageHeight": 844,
+        "contentBottom": 607.140625,
+        "clientWidth": 390,
+        "scrollWidth": 390
+      },
+      {
+        "width": 390,
+        "height": 844,
+        "state": "three-photos-pump-guide",
+        "pageHeight": 878,
+        "clientWidth": 375,
+        "scrollWidth": 375
+      },
+      {
+        "width": 820,
+        "height": 1180,
+        "state": "ice-pack-guide",
+        "clientWidth": 820,
+        "scrollWidth": 820
+      },
+      {
+        "width": 844,
+        "height": 390,
+        "state": "sources-expanded",
+        "clientWidth": 829,
+        "scrollWidth": 829
+      }
+    ],
+    "screenshotsInspected": [
+      "ux-mobile-start.png",
+      "ux-mobile-final-pump.png",
+      "ux-tablet-ice.png",
+      "ux-landscape-sources.png"
+    ]
+  },
+  "notVerified": [
+    "Physical phone/tablet camera and LAN access",
+    "Real HEIC/EXIF input",
+    "Multiple products within one image recognition accuracy",
+    "Real waste recognition accuracy or disposal completion rate",
+    "Environmental impact"
+  ]
+}

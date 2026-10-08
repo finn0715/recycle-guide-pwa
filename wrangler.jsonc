@@ -1,0 +1,5 @@
+{
+  "name": "recycleguide-local",
+  "main": "dist/server/index.js",
+  "compatibility_date": "2026-09-01"
+}

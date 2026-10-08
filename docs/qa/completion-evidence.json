@@ -1,0 +1,126 @@
+{
+  "checkedCommit": "c4e1621be8fa02edd7c83b997739ac8df50319d9",
+  "date": "2026-10-01",
+  "commands": [
+    {
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "npm test",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run build",
+      "exitCode": 0
+    }
+  ],
+  "testFiles": 9,
+  "testsPassed": 243,
+  "productionSmoke": {
+    "executedAt": "2026-10-01T11:38:18.750Z",
+    "implementationCommit": "c4e1621be8fa02edd7c83b997739ac8df50319d9",
+    "mode": "next start, production build, real model",
+    "getStatus": 200,
+    "postStatus": 200,
+    "cacheControl": "no-store",
+    "elapsedMs": 4407,
+    "assertionExitCode": 0
+  },
+  "secretCheck": {
+    "checkedAt": "2026-10-01T11:38:31.531824+00:00",
+    "implementationCommit": "c4e1621be8fa02edd7c83b997739ac8df50319d9",
+    "keyConfigured": true,
+    "envIgnored": true,
+    "envTracked": false,
+    "trackedAndClientBuildFilesChecked": 81,
+    "actualKeyFound": false,
+    "exitCode": 0
+  },
+  "browser": {
+    "executedAt": "2026-10-01T11:12:41.893499+00:00",
+    "tool": "Aside interactive repl",
+    "method": "Desktop real browser with QA-only iframe CSS viewport; setViewportSize unavailable. Not a physical device or mobile user-agent test.",
+    "codeCommits": [
+      "daada3f",
+      "87e10ca"
+    ],
+    "viewports": [
+      {
+        "width": 390,
+        "height": 844,
+        "scrollWidth": 375,
+        "clientWidth": 375
+      },
+      {
+        "width": 820,
+        "height": 1180,
+        "scrollWidth": 805,
+        "clientWidth": 805
+      },
+      {
+        "width": 844,
+        "height": 390,
+        "scrollWidth": 829,
+        "clientWidth": 829
+      }
+    ],
+    "verified": [
+      "photo picker/preview/delete",
+      "optional text before explicit submit",
+      "pump live 4 questions to ready with 4 steps and 3 parts",
+      "additional same-product photo 1 to 2 retains prior answers and does not confirm hidden pump material",
+      "official source disclosure with 5 links and checked date",
+      "tablet two columns with photo card natural height",
+      "current code free-text confirmations to ready",
+      "correction keeps photo and clears previous result/text; product-name-only submission asks material again",
+      "explicit unknown to uncertain without disposal guidance, with official help link",
+      "next product resets photos, text and disables submit",
+      "page re-entry does not restore photos or answers",
+      "deterministic 8000x6000 JPEG scales to 4096x3072 in actual browser",
+      "corrupt JPEG gets Korean decode error",
+      "earlier pre-endpoint HTTP404 error retains photo/text and exposes manual retry"
+    ],
+    "notVerified": [
+      "physical phone/tablet camera",
+      "physical HEIC/EXIF files",
+      "mobile virtual keyboard",
+      "same-LAN physical device access",
+      "field recognition accuracy"
+    ],
+    "artifacts": "/Users/bishoe01/.aside/u/1/sessions/2026-10-01_iTCWfNnvz0tcedDE/artifacts",
+    "scope": "Public prepared product photo and hypothetical confirmations. Synthetic resolution image is not product-recognition evidence."
+  },
+  "productionFreeTextRegression": {
+    "executedAt": "2026-10-01T11:38:31.330Z",
+    "implementationCommit": "c4e1621be8fa02edd7c83b997739ac8df50319d9",
+    "source": "Same prepared commercial pump photo and hypothetical user statements as prior QA",
+    "checks": [
+      {
+        "case": "normal-multi-fact",
+        "httpStatus": 200,
+        "status": "ready",
+        "guidancePresent": true,
+        "assertionExitCode": 0
+      },
+      {
+        "case": "mixed-correction",
+        "httpStatus": 200,
+        "status": "needs_info",
+        "guidancePresent": false,
+        "assertionExitCode": 0
+      },
+      {
+        "case": "question-writing-request",
+        "httpStatus": 200,
+        "status": "needs_info",
+        "guidancePresent": false,
+        "assertionExitCode": 0
+      }
+    ]
+  }
+}
